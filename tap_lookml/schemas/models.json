@@ -260,6 +260,12 @@
     "fiscal_month_offset": {
       "type": ["null", "string"]
     },
+    "git_repository": {
+      "type": ["null", "string"]
+    },
+    "git_owner": {
+      "type": ["null", "string"]
+    },
     "includes": {
       "items": {
         "type": ["null", "string"]
@@ -343,12 +349,6 @@
       "type": ["null", "string"]
     },
     "persist_with": {
-      "type": ["null", "string"]
-    },
-    "git_repository": {
-      "type": ["null", "string"]
-    },
-    "git_owner": {
       "type": ["null", "string"]
     },
     "sha": {

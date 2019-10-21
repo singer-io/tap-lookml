@@ -154,11 +154,6 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
         lkml_records = []
         for item in search_items:
             file_count = file_count + 1
-            for key in id_fields:
-                if not item.get(key):
-                    LOGGER.info('Stream: {}, Missing key {} in record: {}'.format(
-                        stream_name, key, item))
-                    raise RuntimeError
             file_url = item.get('url')
             LOGGER.info('File URL for Stream {}: {}'.format(stream_name, file_url))
             file_data = {}
@@ -187,6 +182,7 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
             file_data.pop('content', None)
             file_data['git_owner'] = git_owner
             file_data['git_repository'] = git_repository
+            # LOGGER.info('file_data: {}'.format(file_data)) # TESTING ONLY - COMMENT OUT
             file_records.append(file_data)
 
             # Loop thru each child object and append lkml records

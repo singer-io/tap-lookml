@@ -16,13 +16,13 @@ STREAMS = {
         'search_path': 'search/code?q=filename:.model.+extension:lkml+repo:[GIT_OWNER]/[GIT_REPOSITORY]',
         'file_path': 'repos/[GIT_OWNER]/[GIT_REPOSITORY]/contents/[GIT_FILE_PATH]',
         'data_key': 'items',
-        'key_properties': ['sha', 'path'],
+        'key_properties': ['git_owner', 'git_repository', 'path'],
         'replication_method': 'INCREMENTAL',
         'replication_keys': ['last_modified'],
         'bookmark_query_field': 'If-Modified-Since',
         'children': {
             'models': {
-                'key_properties': ['sha', 'path'],
+                'key_properties': ['git_owner', 'git_repository', 'path'],
                 'replication_method': 'FULL_TABLE',
                 'parent': 'model_file'
             }
@@ -32,14 +32,14 @@ STREAMS = {
         'search_path': 'search/code?q=filename:.view.+extension:lkml+repo:[GIT_OWNER]/[GIT_REPOSITORY]',
         'file_path': 'repos/[GIT_OWNER]/[GIT_REPOSITORY]/contents/[GIT_FILE_PATH]',
         'data_key': 'items',
-        'key_properties': ['sha', 'path'],
+        'key_properties': ['git_owner', 'git_repository', 'path'],
         'replication_method': 'INCREMENTAL',
         'replication_keys': ['last_modified'],
         'bookmark_query_field': 'If-Modified-Since',
         'children': {
             'views': {
                 'data_key': 'views',
-                'key_properties': ['sha', 'path', 'name'],
+                'key_properties': ['git_owner', 'git_repository', 'path', 'name'],
                 'replication_method': 'FULL_TABLE',
                 'parent': 'view_file'
             }
