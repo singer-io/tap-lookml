@@ -1,7 +1,7 @@
 {
     "api_token": "YOUR_GITHUB_API_TOKEN",
     "git_owner": "YOUR_GITHUB_ORGANIZATION_OR_USER",
-    "git_repository": "YOUR_LOOKER_GITHUB_REPOSITORY",
+    "git_repositories": "LOOKER_GIT_REPO_1, LOOKER_GIT_REPO_2, ...",
     "start_date": "2019-01-01T00:00:00Z",
     "user_agent": "tap-lookml <api_user_email@your_company.com>"
 }

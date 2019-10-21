@@ -76,13 +76,13 @@ This tap:
     - [singer-tools](https://github.com/singer-io/singer-tools)
     - [target-stitch](https://github.com/singer-io/target-stitch)
 
-3. Create your tap's `config.json` file. This tap connects to GitHub with a [GitHub OAuth2 Token](https://developer.github.com/v3/#authentication). This may be a [Personal Access Token](https://github.com/settings/tokens) or [Create an authorization for an App](https://developer.github.com/v3/oauth_authorizations/#create-a-new-authorization). Each tap connects to a single Looker/LookML Git Repository (where your Looker LookML code is hosted for your Looker Project); provide the name of the `git_repository` and the `git_owner` of that repository (whcih can be a User or Organization). 
+3. Create your tap's `config.json` file. This tap connects to GitHub with a [GitHub OAuth2 Token](https://developer.github.com/v3/#authentication). This may be a [Personal Access Token](https://github.com/settings/tokens) or [Create an authorization for an App](https://developer.github.com/v3/oauth_authorizations/#create-a-new-authorization). Each tap connects to a single Looker/LookML Git Repository (where your Looker LookML code is hosted for your Looker Project); provide the name of the `git_repositories` delimited by a comma (spaces are ignored) and the `git_owner` of those repositories (whcih can be a User or Organization). 
 
     ```json
     {
         "api_token": "YOUR_GITHUB_API_TOKEN",
         "git_owner": "YOUR_GITHUB_ORGANIZATION_OR_USER",
-        "git_repository": "YOUR_LOOKER_GITHUB_REPOSITORY",
+        "git_repositories": "LOOKER_GIT_REPO_1, LOOKER_GIT_REPO_2, ...",
         "start_date": "2019-01-01T00:00:00Z",
         "user_agent": "tap-lookml <api_user_email@your_company.com>"
     }

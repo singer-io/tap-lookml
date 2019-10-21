@@ -97,6 +97,8 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
                   stream_name,
                   search_path,
                   endpoint_config,
+                  git_owner,
+                  git_repository,
                   bookmark_query_field=None,
                   bookmark_field=None,
                   data_key=None,
@@ -180,9 +182,11 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
             file_sha = file_data.get('sha')
             file_path = file_data.get('path')
 
-            # Remove _links, content nodes
+            # Remove _links, content nodes, add git info
             file_data.pop('_links', None)
             file_data.pop('content', None)
+            file_data['git_owner'] = git_owner
+            file_data['git_repository'] = git_repository
             file_records.append(file_data)
 
             # Loop thru each child object and append lkml records
@@ -195,11 +199,15 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
                                 record['path'] = file_path
                                 record['sha'] = file_sha
                                 record['last_modified'] = file_modified
+                                record['git_owner'] = git_owner
+                                record['git_repository'] = git_repository
                                 lkml_records.append(record)
                         else:
                             content_dict['path'] = file_path
                             content_dict['sha'] = file_sha
                             content_dict['last_modified'] = file_modified
+                            content_dict['git_owner'] = git_owner
+                            content_dict['git_repository'] = git_repository
                             lkml_records.append(content_dict)
 
         # Process file_records and get the max_bookmark_value and record_count
@@ -287,7 +295,8 @@ def get_selected_fields(catalog, stream_name):
 def sync(client, config, catalog, state):
     start_date = config.get('start_date')
     git_owner = config.get('git_owner')
-    git_repository = config.get('git_repository')
+    git_repository_list = config['git_repositories'].replace(" ", "").split(",")
+
 
     # Get selected_streams from catalog, based on state last_stream
     #   last_stream = Previous currently synced stream, if the load was interrupted
@@ -304,26 +313,31 @@ def sync(client, config, catalog, state):
     # Loop through selected_streams
     for stream_name, endpoint_config in STREAMS.items():
         if stream_name in selected_streams:
-            LOGGER.info('START Syncing: {}'.format(stream_name))
-            update_currently_syncing(state, stream_name)
-            search_path = endpoint_config.get('search_path', stream_name).replace(
-                '[GIT_OWNER]', git_owner).replace('[GIT_REPOSITORY]', git_repository)
-            bookmark_field = next(iter(endpoint_config.get('replication_keys', [])), None)
-            total_records = sync_endpoint(
-                client=client,
-                catalog=catalog,
-                state=state,
-                start_date=start_date,
-                stream_name=stream_name,
-                search_path=search_path,
-                endpoint_config=endpoint_config,
-                bookmark_query_field=endpoint_config.get('bookmark_query_field', None),
-                bookmark_field=bookmark_field,
-                data_key=endpoint_config.get('data_key', stream_name),
-                id_fields=endpoint_config.get('key_properties'),
-                selected_streams=selected_streams)
+            for git_repository in git_repository_list:
+                LOGGER.info('START Syncing Repository: {}, Stream: {}'.format(
+                    git_repository, stream_name))
+                update_currently_syncing(state, stream_name)
+                search_path = endpoint_config.get('search_path', stream_name).replace(
+                    '[GIT_OWNER]', git_owner).replace('[GIT_REPOSITORY]', git_repository)
+                bookmark_field = next(iter(endpoint_config.get('replication_keys', [])), None)
+                total_records = sync_endpoint(
+                    client=client,
+                    catalog=catalog,
+                    state=state,
+                    start_date=start_date,
+                    stream_name=stream_name,
+                    search_path=search_path,
+                    endpoint_config=endpoint_config,
+                    git_owner=git_owner,
+                    git_repository=git_repository,
+                    bookmark_query_field=endpoint_config.get('bookmark_query_field', None),
+                    bookmark_field=bookmark_field,
+                    data_key=endpoint_config.get('data_key', stream_name),
+                    id_fields=endpoint_config.get('key_properties'),
+                    selected_streams=selected_streams)
 
-            update_currently_syncing(state, None)
-            LOGGER.info('FINISHED Syncing: {}, total_records: {}'.format(
-                stream_name,
-                total_records))
+                update_currently_syncing(state, None)
+                LOGGER.info('FINISHED Syncing Repository: {}, Stream: {}, total_records: {}'.format(
+                    git_repository,
+                    stream_name,
+                    total_records))

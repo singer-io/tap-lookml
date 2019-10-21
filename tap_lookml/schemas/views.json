@@ -1007,6 +1007,12 @@
       },
       "type": ["null", "array"]
     },
+    "git_repository": {
+      "type": ["null", "string"]
+    },
+    "git_owner": {
+      "type": ["null", "string"]
+    },
     "required_access_grants": {
       "items": {
         "type": ["null", "string"]

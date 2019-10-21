@@ -27,6 +27,12 @@
     "path": {
       "type": ["null", "string"]
     },
+    "git_repository": {
+      "type": ["null", "string"]
+    },
+    "git_owner": {
+      "type": ["null", "string"]
+    },
     "sha": {
       "type": ["null", "string"]
     },
