@@ -166,45 +166,47 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
                 headers=headers,
                 endpoint=stream_name)
             # LOGGER.info('file_data: {}'.format(file_data)) # TESTING ONLY - COMMENT OUT
-            content = file_data.get('content')
-            content_dict = {}
-            if content:
-                content_b64 = base64.b64decode(content)
-                content_str = content_b64.decode('utf-8')
-                content_dict = lkml.load(content_str)
 
-            file_modified = file_data.get('last_modified')
-            file_sha = file_data.get('sha')
-            file_path = file_data.get('path')
+            if file_data:
+                content = file_data.get('content')
+                content_dict = {}
+                if content:
+                    content_b64 = base64.b64decode(content)
+                    content_str = content_b64.decode('utf-8')
+                    content_dict = lkml.load(content_str)
 
-            # Remove _links, content nodes, add git info
-            file_data.pop('_links', None)
-            file_data.pop('content', None)
-            file_data['git_owner'] = git_owner
-            file_data['git_repository'] = git_repository
-            # LOGGER.info('file_data: {}'.format(file_data)) # TESTING ONLY - COMMENT OUT
-            file_records.append(file_data)
+                file_modified = file_data.get('last_modified')
+                file_sha = file_data.get('sha')
+                file_path = file_data.get('path')
 
-            # Loop thru each child object and append lkml records
-            if children:
-                for child_stream_name, child_endpoint_config in children.items():
-                    if child_stream_name in selected_streams:
-                        child_data_key = child_endpoint_config.get('data_key')
-                        if child_data_key and child_data_key in content_dict:
-                            for record in content_dict.get(child_data_key, []):
-                                record['path'] = file_path
-                                record['sha'] = file_sha
-                                record['last_modified'] = file_modified
-                                record['git_owner'] = git_owner
-                                record['git_repository'] = git_repository
-                                lkml_records.append(record)
-                        else:
-                            content_dict['path'] = file_path
-                            content_dict['sha'] = file_sha
-                            content_dict['last_modified'] = file_modified
-                            content_dict['git_owner'] = git_owner
-                            content_dict['git_repository'] = git_repository
-                            lkml_records.append(content_dict)
+                # Remove _links, content nodes, add git info
+                file_data.pop('_links', None)
+                file_data.pop('content', None)
+                file_data['git_owner'] = git_owner
+                file_data['git_repository'] = git_repository
+                # LOGGER.info('file_data: {}'.format(file_data)) # TESTING ONLY - COMMENT OUT
+                file_records.append(file_data)
+
+                # Loop thru each child object and append lkml records
+                if children:
+                    for child_stream_name, child_endpoint_config in children.items():
+                        if child_stream_name in selected_streams:
+                            child_data_key = child_endpoint_config.get('data_key')
+                            if child_data_key and child_data_key in content_dict:
+                                for record in content_dict.get(child_data_key, []):
+                                    record['path'] = file_path
+                                    record['sha'] = file_sha
+                                    record['last_modified'] = file_modified
+                                    record['git_owner'] = git_owner
+                                    record['git_repository'] = git_repository
+                                    lkml_records.append(record)
+                            else:
+                                content_dict['path'] = file_path
+                                content_dict['sha'] = file_sha
+                                content_dict['last_modified'] = file_modified
+                                content_dict['git_owner'] = git_owner
+                                content_dict['git_repository'] = git_repository
+                                lkml_records.append(content_dict)
 
         # Process file_records and get the max_bookmark_value and record_count
         file_max_bookmark_value, file_record_count = process_records(

@@ -1,4 +1,5 @@
 import re
+from simplejson.scanner import JSONDecodeError
 from datetime import datetime
 import backoff
 import requests
@@ -14,6 +15,9 @@ class Server5xxError(Exception):
 
 
 class Server429Error(Exception):
+    pass
+
+class Server304Error(Exception):
     pass
 
 
@@ -186,6 +190,10 @@ class GitClient(object):
 
         if response.status_code >= 500:
             raise Server5xxError()
+
+        # 304: File Not Modified status_code
+        if response.status_code == 304:
+            return None, None
 
         if response.status_code != 200:
             raise_for_error(response)
