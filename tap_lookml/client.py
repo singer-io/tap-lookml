@@ -93,8 +93,8 @@ def raise_for_error(response):
                 error_code = response.get('status')
                 ex = get_exception_for_error_code(error_code)
                 raise ex(message)
-            #else:
-                #raise GitError(error)
+            else:
+                raise GitError(error)
         except (ValueError, TypeError):
             raise GitError(error)
 
