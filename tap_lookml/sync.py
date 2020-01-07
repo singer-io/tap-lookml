@@ -15,7 +15,7 @@ def write_schema(catalog, stream_name):
     try:
         singer.write_schema(stream_name, schema, stream.key_properties)
     except OSError as err:
-        LOGGER.info('OS Error writing schema for: {}'.format(stream_name))
+        LOGGER.info('OS Error writing schema for: %s', stream_name)
         raise err
 
 
@@ -23,8 +23,8 @@ def write_record(stream_name, record, time_extracted):
     try:
         singer.messages.write_record(stream_name, record, time_extracted=time_extracted)
     except OSError as err:
-        LOGGER.info('OS Error writing record for: {}'.format(stream_name))
-        LOGGER.info('record: {}'.format(record))
+        LOGGER.info('OS Error writing record for: %s', stream_name)
+        LOGGER.info('record: %s', record)
         raise err
 
 
@@ -42,7 +42,7 @@ def write_bookmark(state, stream, value):
     if 'bookmarks' not in state:
         state['bookmarks'] = {}
     state['bookmarks'][stream] = value
-    LOGGER.info('Write state for stream: {}, value: {}'.format(stream, value))
+    LOGGER.info('Write state for stream: %s, value: %s', stream, value)
     singer.write_state(state)
 
 
@@ -111,20 +111,19 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
     # Convert to GitHub date format, example: Sun, 13 Oct 2019 22:40:01 GMT
     last_dttm = strptime_to_utc(last_datetime)
     last_modified = last_dttm.strftime("%a, %d %b %Y %H:%M:%S %Z'")
-    LOGGER.info('HEADER If-Modified-Since: {}'.format(last_modified))
+    LOGGER.info('HEADER If-Modified-Since: %s', last_modified)
 
     # Write schema and log selected fields for file stream and child lkml stream(s)
     write_schema(catalog, stream_name)
     selected_fields = get_selected_fields(catalog, stream_name)
-    LOGGER.info('Stream: {}, selected_fields: {}'.format(stream_name, selected_fields))
+    LOGGER.info('Stream: %s, selected_fields: %s', stream_name, selected_fields)
     children = endpoint_config.get('children')
     if children:
         for child_stream_name, child_endpoint_config in children.items():
             if child_stream_name in selected_streams:
                 write_schema(catalog, child_stream_name)
                 child_selected_fields = get_selected_fields(catalog, child_stream_name)
-                LOGGER.info('Stream: {}, selected_fields: {}'.format(
-                    child_stream_name, child_selected_fields))
+                LOGGER.info('Stream: %s, selected_fields: %s', child_stream_name, child_selected_fields)
 
     # pagination: loop thru all pages of data using next_url (if not None)
     page = 1
@@ -135,7 +134,7 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
 
     i = 1
     while next_url is not None:
-        LOGGER.info('Search URL for Stream {}: {}'.format(stream_name, next_url))
+        LOGGER.info('Search URL for Stream %s: %s', stream_name, next_url)
 
         # API request search_data
         search_data = {}
@@ -155,7 +154,7 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
         for item in search_items:
             file_count = file_count + 1
             file_url = item.get('url')
-            LOGGER.info('File URL for Stream {}: {}'.format(stream_name, file_url))
+            LOGGER.info('File URL for Stream %s: %s', stream_name, file_url)
             file_data = {}
             headers = {}
             if bookmark_query_field:
@@ -217,8 +216,7 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
             bookmark_field=bookmark_field,
             max_bookmark_value=file_max_bookmark_value,
             last_datetime=last_datetime)
-        LOGGER.info('Stream {}, batch processed {} records'.format(
-            stream_name, file_record_count))
+        LOGGER.info('Stream %s, batch processed %s records', stream_name, file_record_count)
         file_total_records = file_total_records + file_record_count
 
         # Loop thru each child object to process lkml records
@@ -233,8 +231,7 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
                         bookmark_field=None,
                         max_bookmark_value=None,
                         last_datetime=last_datetime)
-                    LOGGER.info('Stream {}, batch processed {} records'.format(
-                        child_stream_name, lkml_record_count))
+                    LOGGER.info('Stream %s, batch processed %s records', child_stream_name, lkml_record_count)
                     lkml_total_records = lkml_total_records + lkml_record_count
 
         # Update the state with the max_bookmark_value for the stream
@@ -243,22 +240,14 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
 
         # to_rec: to record; ending record for the batch page
         to_rec = offset + file_count
-        LOGGER.info('Synced Stream: {}, page: {}, records: {} to {}'.format(
-            stream_name,
-            page,
-            offset,
-            to_rec))
+        LOGGER.info('Synced Stream: %s, page: %s, records: %s to %s', stream_name, page, offset, to_rec)
         # Pagination: increment the offset by the limit (batch-size) and page
         offset = offset + file_count
         page = page + 1
         i = i + 1
 
     # Return total_records across all pages
-    LOGGER.info('Synced Stream: {}, TOTAL pages: {}, file records: {}, lookml records: {}'.format(
-        stream_name,
-        page - 1,
-        file_total_records,
-        lkml_total_records))
+    LOGGER.info('Synced Stream: %s, TOTAL pages: %s, file records: %s, lookml records: %s', stream_name, page - 1, file_total_records, lkml_total_records)
     return file_total_records
 
 
@@ -299,11 +288,11 @@ def sync(client, config, catalog, state):
     # Get selected_streams from catalog, based on state last_stream
     #   last_stream = Previous currently synced stream, if the load was interrupted
     last_stream = singer.get_currently_syncing(state)
-    LOGGER.info('last/currently syncing stream: {}'.format(last_stream))
+    LOGGER.info('last/currently syncing stream: %s', last_stream)
     selected_streams = []
     for stream in catalog.get_selected_streams(state):
         selected_streams.append(stream.stream)
-    LOGGER.info('selected_streams: {}'.format(selected_streams))
+    LOGGER.info('selected_streams: %s', selected_streams)
 
     if not selected_streams:
         return
@@ -312,8 +301,7 @@ def sync(client, config, catalog, state):
     for stream_name, endpoint_config in STREAMS.items():
         if stream_name in selected_streams:
             for git_repository in git_repository_list:
-                LOGGER.info('START Syncing Repository: {}, Stream: {}'.format(
-                    git_repository, stream_name))
+                LOGGER.info('START Syncing Repository: %s, Stream: %s', git_repository, stream_name)
                 update_currently_syncing(state, stream_name)
                 search_path = endpoint_config.get('search_path', stream_name).replace(
                     '[GIT_OWNER]', git_owner).replace('[GIT_REPOSITORY]', git_repository)
@@ -335,7 +323,4 @@ def sync(client, config, catalog, state):
                     selected_streams=selected_streams)
 
                 update_currently_syncing(state, None)
-                LOGGER.info('FINISHED Syncing Repository: {}, Stream: {}, total_records: {}'.format(
-                    git_repository,
-                    stream_name,
-                    total_records))
+                LOGGER.info('FINISHED Syncing Repository: %s, Stream: %s, total_records: %s', git_repository, stream_name, total_records)

@@ -14,6 +14,12 @@ setup(name='tap-lookml',
           'requests==2.22.0',
           'singer-python==5.8.1'
       ],
+      extras_require={
+        'dev': [
+            'pylint',
+            'ipdb'
+        ]
+      },
       entry_points='''
           [console_scripts]
           tap-lookml=tap_lookml:main
