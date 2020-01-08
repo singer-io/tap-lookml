@@ -1,5 +1,4 @@
 import re
-from simplejson.scanner import JSONDecodeError
 from datetime import datetime
 import backoff
 import requests
@@ -77,8 +76,7 @@ def get_exception_for_error_code(error_code):
     return ERROR_CODE_EXCEPTION_MAPPING.get(error_code, GitError)
 
 def raise_for_error(response):
-    LOGGER.error('ERROR {}: {}, REASON: {}'.format(response.status_code,\
-        response.text, response.reason))
+    LOGGER.error('ERROR %s: %s, REASON: %s', response.status_code, response.text, response.reason)
     try:
         response.raise_for_status()
     except (requests.HTTPError, requests.ConnectionError) as error:
@@ -137,7 +135,7 @@ class GitClient(object):
             url=url,
             headers=headers)
         if response.status_code != 200:
-            LOGGER.error('Error status_code = {}'.format(response.status_code))
+            LOGGER.error('Error status_code = %s', response.status_code)
             raise_for_error(response)
         else:
             return True
