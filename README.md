@@ -21,28 +21,28 @@ This tap:
 **model_files**
 - Search Endpoint (ALL Model Files): https://api.github.com/search/code?q=filename:.model.+extension:lkml+repo:[GIT_OWNER]/[GIT_REPOSITORY]
 - File Endpoint: https://api.github.com/repos/[GIT_OWNER]/[GIT_REPOSITORY]/contents/[GIT_FILE_PATH]
-- Primary key fields: url
+- Primary key fields: git_owner, git_repository, path
 - Foreign key fields: repository_id
 - Replication strategy: INCREMENTAL (Search ALL, filter results)
   - Bookmark field: last_modified
 - Transformations: Remove _links node, remove content node, add repository name, path, folder, and repository ID
 
 **models**
-- Primary key fields: url
+- Primary key fields: git_owner, git_repository, path
 - Replication strategy: FULL_TABLE (ALL for each model_file)
 - Transformations: Decode, parse model_file **content** and convert to JSON
 
 **view_files**
 - Search Endpoint (ALL View Files): https://api.github.com/search/code?q=filename:.view.+extension:lkml+repo:[GIT_OWNER]/[GIT_REPOSITORY]
 - File Endpoint: https://api.github.com/repos/[GIT_OWNER]/[GIT_REPOSITORY]/contents/[GIT_FILE_PATH]
-- Primary key fields: url
+- Primary key fields: git_owner, git_repository, path
 - Foreign key fields: repository_id
 - Replication strategy: INCREMENTAL (Search ALL, filter results)
   - Bookmark field: last_modified
 - Transformations: Remove _links node, remove content node, add repository name, path, folder, and repository ID
 
 **views**
-- Primary key fields: url
+- Primary key fields: git_owner, git_repository, path
 - Replication strategy: FULL_TABLE (ALL for each model_file)
 - Transformations: Decode, parse model_file **content** and convert to JSON
 
