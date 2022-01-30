@@ -137,6 +137,9 @@
             },
             "type": ["null", "array"]
           },
+          "extension": {
+            "type": ["null", "string"]
+          },
           "fields": {
             "items": {
               "type": ["null", "string"]
