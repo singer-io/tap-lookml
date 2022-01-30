@@ -9,7 +9,7 @@ setup(name='tap-lookml',
       classifiers=['Programming Language :: Python :: 3 :: Only'],
       py_modules=['tap_lookml'],
       install_requires=[
-          'lkml==0.2.1',
+          'lkml==1.1.2',
           'backoff==1.8.0',
           'requests==2.22.0',
           'singer-python==5.8.1'
