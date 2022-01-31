@@ -183,6 +183,7 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
                 file_data.pop('content', None)
                 file_data['git_owner'] = git_owner
                 file_data['git_repository'] = git_repository
+                file_data['content'] = content_dict
                 # LOGGER.info('file_data: {}'.format(file_data)) # TESTING ONLY - COMMENT OUT
                 file_records.append(file_data)
 
