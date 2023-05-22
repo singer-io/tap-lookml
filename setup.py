@@ -11,7 +11,7 @@ setup(name='tap-lookml',
       install_requires=[
           'lkml==0.2.1',
           'backoff==1.8.0',
-          'requests==2.22.0',
+          'requests==2.31.0',
           'singer-python==5.8.1'
       ],
       extras_require={
